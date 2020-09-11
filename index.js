@@ -3,12 +3,8 @@
  * posts from your friends and family!
  */
 
-const attribute = 'data-pagelet',
-  value = 'FeedUnit',
-  likeQuerySelector = 'span .gpro0wi8.pcp91wgn',
-  maxLikes = 500, // TBD needs to be configurable throught the UI
-  config = { childList: true },
-  debounceWait = 200;
+const likeQuerySelector = 'span .pcp91wgn',
+  maxLikes = 500; // TBD needs to be configurable throught the UI
 
 let feedItemsFound = 0,
   deviralizedItems = 0;
@@ -33,26 +29,21 @@ const processFeedElement = (el) => {
       deviralizedItems += 1;
       //el.setAttribute('style', 'border: 1px solid red'); // debugging
       el.setAttribute('style', 'display: none');
-      //el.remove();
+      //el.remove(); // turns out to perform poorly
     }
   }
   console.log(
-    `Deviralized ${deviralizedItems} of ${feedItemsFound} feed items (${(
+    `deviralized ${deviralizedItems} of ${feedItemsFound} feed items (${(
       (100 * deviralizedItems) /
       feedItemsFound
     ).toFixed(0)}%)`
   );
 };
 
-const deviralize = (feed) => {
-  const elements = Array.from(feed.children);
-  elements.forEach(processFeedElement);
-};
+const deviralize = (feed) => Array.from(feed.children).forEach(processFeedElement);
 
 const mocb = (mutationsList, observer) => {
-  for (let mutation of mutationsList) {
-    mutation.addedNodes.forEach(processFeedElement);
-  }
+  for (let mutation of mutationsList) mutation.addedNodes.forEach(processFeedElement);
 };
 
 const observer = new MutationObserver(mocb);
@@ -61,6 +52,9 @@ const observer = new MutationObserver(mocb);
 setTimeout(() => {
   console.log('deviralizer loaded');
   const feed = document.querySelector('[role="feed"]');
+  // fb loads 3 feed items up front, as these won't be caught by the observer
+  // they need to be processed independently
   deviralize(feed);
-  observer.observe(feed, config);
+  // observe the feed for new children
+  observer.observe(feed, { childList: true });
 }, 1000);
