@@ -6,9 +6,12 @@
 const attribute = 'data-pagelet',
   value = 'FeedUnit',
   likeQuerySelector = 'span .gpro0wi8.pcp91wgn',
-  maxLikes = 100, // TBD needs to be configurable throught the UI
+  maxLikes = 500, // TBD needs to be configurable throught the UI
   config = { childList: true },
   debounceWait = 200;
+
+let feedItemsFound = 0,
+  deviralizedItems = 0;
 
 const getLikes = (text) => {
   const match = text.match(/(\d+[.,]?\d?)[KM]?/);
@@ -22,11 +25,23 @@ const getLikes = (text) => {
 };
 
 const processFeedElement = (el) => {
+  feedItemsFound += 1;
   const likesElement = el.querySelector(likeQuerySelector);
-  if (likesElement && getLikes(likesElement.innerText) > maxLikes) {
-    //el.setAttribute('style', 'border: 1px solid red'); // debugging
-    el.setAttribute('style', 'display: none');
+  if (likesElement) {
+    const likes = getLikes(likesElement.innerText);
+    if (likes > maxLikes) {
+      deviralizedItems += 1;
+      //el.setAttribute('style', 'border: 1px solid red'); // debugging
+      el.setAttribute('style', 'display: none');
+      //el.remove();
+    }
   }
+  console.log(
+    `Deviralized ${deviralizedItems} of ${feedItemsFound} feed items (${(
+      (100 * deviralizedItems) /
+      feedItemsFound
+    ).toFixed(0)}%)`
+  );
 };
 
 const deviralize = (feed) => {
