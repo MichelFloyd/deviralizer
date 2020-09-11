@@ -1,0 +1,44 @@
+{
+  "name": "Deviralizer",
+  "version": "0.1",
+  "description": "Chrome extension that removes viral content so that you can focus on friends and family.",
+  "permissions": [
+    "activeTab",
+    "declarativeContent",
+    "storage",
+    "https://www.facebook.com/"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.facebook.com/*"
+      ],
+      "run_at": "document_end",
+      "exclude_matches": [],
+      "css": [],
+      "js": ["index.js"]
+    }
+  ],
+  "page_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon-16.png",
+      "32": "images/icon-32.png",
+      "48": "images/icon-48.png",
+      "128": "images/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+  "manifest_version": 2
+}
