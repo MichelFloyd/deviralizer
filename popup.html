@@ -1,16 +1,44 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&effect=fire">
     <style>
-      button {
-        height: 30px;
+      body {
+        background-color: #222;
+        color: #fff;
+      }
+      .extensionName {
+        font-family: Roboto;
+        font-size: 32px;
+        width: 200px;
+      }
+      .settings {
+        font-family: Roboto;
+        font-size: 12px;
+        padding: 10px;
+      }
+      .maxLikes {
+        padding-left: 21px;
+      }
+      .maxLikes input{
         width: 30px;
-        outline: none;
+        text-align: right;
       }
     </style>
   </head>
   <body>
-    <button id="changeColor"></button>
+    <div class='extensionName'>
+      <img src="images/icon-32.png" height=32 width=32>&nbsp;
+      <span class=" font-effect-fire">
+        deviralizer
+      </span><br />
+    </div>
+  <div class='settings'>
+    <input type='checkbox'></input>Hide viral posts<br/>
+    <span class='maxLikes'>with at least <input value=500></input> likes</span>
+  </div>
     <script src="popup.js"></script>
   </body>
 </html>

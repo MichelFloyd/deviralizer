@@ -7,7 +7,8 @@ const likeQuerySelector = 'span .pcp91wgn',
   maxLikes = 500; // TBD needs to be configurable throught the UI
 
 let feedItemsFound = 0,
-  deviralizedItems = 0;
+  deviralizedItems = 0,
+  observerRunning = false;
 
 const getLikes = (text) => {
   const match = text.match(/(\d+[.,]?\d?)[KM]?/);
@@ -40,21 +41,31 @@ const processFeedElement = (el) => {
   );
 };
 
-const deviralize = (feed) => Array.from(feed.children).forEach(processFeedElement);
+const deviralize = (feed) =>
+  Array.from(feed.children).forEach(processFeedElement);
 
 const mocb = (mutationsList, observer) => {
-  for (let mutation of mutationsList) mutation.addedNodes.forEach(processFeedElement);
+  for (let mutation of mutationsList)
+    mutation.addedNodes.forEach(processFeedElement);
 };
 
 const observer = new MutationObserver(mocb);
 
-// Start observing the target node for configured mutations once the dom is loaded
-setTimeout(() => {
-  console.log('deviralizer loaded');
-  const feed = document.querySelector('[role="feed"]');
-  // fb loads 3 feed items up front, as these won't be caught by the observer
-  // they need to be processed independently
-  deviralize(feed);
-  // observe the feed for new children
-  observer.observe(feed, { childList: true });
-}, 1000);
+// Poll every second for changes to the current path
+setInterval(() => {
+  if (window.location.pathname === '/' && !observerRunning) {
+    console.log('deviralizer loaded');
+    const feed = document.querySelector('[role="feed"]');
+    // fb loads 3 feed items up front, as these won't be caught by the observer
+    // they need to be processed independently
+    deviralize(feed);
+    // observe the feed for new children
+    observer.observe(feed, { childList: true });
+    observerRunning = true;
+  } else if (window.location.pathname !== '/' && observerRunning) {
+    // don't observe when not looking at the feed
+    console.log('deviralizer paused');
+    observer.disconnect();
+    observerRunning = false;
+  }
+}, 2000);
