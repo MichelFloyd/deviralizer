@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css?family=Roboto">
+    <script src="popup.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto&effect=fire">
     <style>
       body {
@@ -35,10 +34,9 @@
         deviralizer
       </span><br />
     </div>
-  <div class='settings'>
-    <input type='checkbox'></input>Hide viral posts<br/>
-    <span class='maxLikes'>with at least <input value=500></input> likes</span>
-  </div>
-    <script src="popup.js"></script>
+    <div class='settings'>
+      <input id='deviralizerActive' type='checkbox'></input>Hide viral posts<br/>
+      <span class='maxLikes'>with at least <input id='maxLikes'></input> likes</span>
+    </div>
   </body>
 </html>

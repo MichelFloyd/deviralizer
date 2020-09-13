@@ -1,15 +1,20 @@
-let changeColor = document.getElementById('changeColor');
+window.onload = function () {
+  const cb = document.getElementById('deviralizerActive'),
+    tf = document.getElementById('maxLikes');
 
-chrome.storage.sync.get('color', function (data) {
-  changeColor.style.backgroundColor = data.color;
-  changeColor.setAttribute('value', data.color);
-});
-
-changeColor.onclick = function (element) {
-  let color = element.target.value;
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    chrome.tabs.executeScript(tabs[0].id, {
-      code: 'document.body.style.backgroundColor = "' + color + '";',
-    });
+  chrome.storage.sync.get(['deviralizer'], ({ deviralizer }) => {
+    if (!!deviralizer) cb.checked = deviralizer;
+    tf.disabled = !deviralizer;
   });
+
+  chrome.storage.sync.get(['maxLikes'], ({ maxLikes }) => {
+    if (!!maxLikes) tf.value = maxLikes;
+  });
+
+  cb.onclick = function (ev) {
+    chrome.storage.sync.set({ deviralizer: this.checked });
+    tf.disabled = !deviralizer;
+  };
+
+  tf.onchange = (ev) => chrome.storage.sync.set({ maxLikes: this.value });
 };

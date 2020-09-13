@@ -8,12 +8,6 @@
     "storage",
     "https://www.facebook.com/"
   ],
-  "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": false
-  },
   "content_scripts": [
     {
       "matches": [
