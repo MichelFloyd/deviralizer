@@ -16,5 +16,8 @@ window.onload = function () {
     tf.disabled = !this.checked;
   };
 
-  tf.onchange = (ev) => chrome.storage.sync.set({ maxLikes: this.value });
+  tf.onchange = function(ev) {
+    console.log(this.value);
+    chrome.storage.sync.set({ maxLikes: this.value });
+  };
 };

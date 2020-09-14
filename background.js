@@ -1,9 +1,9 @@
 // Run the cron from the background script
 const pollingInterval = 2000;
+let deviralizerActive = true,
+maxLikes = 500;
 
 const getSettings = () => {
-  let deviralizerActive = true,
-    maxLikes = 500;
   chrome.storage.sync.get(['deviralizerActive'], (result) => {
     if (result.deviralizerActive === undefined)
       chrome.storage.sync.set({ deviralizerActive });
@@ -15,11 +15,10 @@ const getSettings = () => {
       chrome.storage.sync.set({ maxLikes });
     else maxLikes = result.maxLikes;
   });
-  return { deviralizerActive, maxLikes };
 };
 
 setInterval(() => {
-  ({ deviralizerActive, maxLikes } = getSettings());
+  getSettings();
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     chrome.tabs.sendMessage(tabs[0].id, { deviralizerActive, maxLikes });
   });
