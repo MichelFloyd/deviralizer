@@ -13,7 +13,7 @@ window.onload = function () {
 
   cb.onclick = function (ev) {
     chrome.storage.sync.set({ deviralizer: this.checked });
-    tf.disabled = !deviralizer;
+    tf.disabled = !this.checked;
   };
 
   tf.onchange = (ev) => chrome.storage.sync.set({ maxLikes: this.value });
