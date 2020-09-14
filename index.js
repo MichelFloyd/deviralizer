@@ -5,25 +5,16 @@
 
 const likeQuerySelector = 'span .pcp91wgn';
 
-let feedItemsFound,
-  deviralizedItems,
-  observerRunning = false,
-  deviralizerActive = true,
-  maxLikes = 500;
+let feedItemsFound = 0,
+  deviralizedItems = 0;
 
-const getSettings = () => {
-  chrome.storage.sync.get(['deviralizer'], (result) => {
-    if (result.deviralizer === undefined)
-      chrome.storage.sync.set({ deviralizer: deviralizerActive });
-    else deviralizerActive = result.deviralizer;
-  });
+// Insert a new style at the TOP of the <head> element (if you put it at the end react will remove it)
+const head = document.head,
+  style = document.createElement('style');
 
-  chrome.storage.sync.get(['maxLikes'], (result) => {
-    if (result.maxLikes === undefined)
-      chrome.storage.sync.set({ maxLikes: maxLikes });
-    else maxLikes = result.maxLikes;
-  });
-};
+style.type = 'text/css';
+style.innerText = '[dv]{display: none;}';
+head.insertBefore(style, head.childNodes[0]);
 
 const getLikes = (text) => {
   const match = text.match(/(\d+[.,]?\d?)[KM]?/);
@@ -36,7 +27,7 @@ const getLikes = (text) => {
   return likes;
 };
 
-const processFeedElement = (el) => {
+const processFeedElement = (el, maxLikes) => {
   if (!el.hasAttribute('likes')) {
     feedItemsFound += 1;
     const likesElement = el.querySelector(likeQuerySelector);
@@ -44,8 +35,9 @@ const processFeedElement = (el) => {
       const likes = getLikes(likesElement.innerText);
       if (likes > maxLikes) {
         deviralizedItems += 1;
-        //el.setAttribute('style', 'border: 1px solid red'); // debugging
-        el.setAttribute('style', 'display: none');
+        el.setAttribute('style', 'border: 1px solid red'); // debugging
+        el.setAttribute('dv', '');
+        //el.setAttribute('style', 'display: none');
         //el.remove(); // turns out to perform poorly
       }
       el.setAttribute('likes', likes);
@@ -59,42 +51,12 @@ const processFeedElement = (el) => {
   }
 };
 
-const deviralize = (feed) =>
-  Array.from(feed.children).forEach(processFeedElement);
-
-const mocb = (mutationsList, observer) => {
-  for (let mutation of mutationsList)
-    mutation.addedNodes.forEach(processFeedElement);
-};
-
-const observer = new MutationObserver(mocb);
-
-// Poll for changes to the current path and/or settings
-setInterval(() => {
-  getSettings();
+const deviralize = (feed, maxLikes) =>
+  Array.from(feed.children).forEach((el) => processFeedElement(el, maxLikes));
+  
+// poll instead of using a mutation observer because the mutation observer seems to shut itself off
+// for no good reason
+chrome.runtime.onMessage.addListener(({ deviralizerActive, maxLikes }) => {
   const feed = document.querySelector('[role="feed"]');
-  if (feed && !observerRunning && deviralizerActive) {
-    console.log('deviralizer loaded');
-    feedItemsFound = 0;
-    deviralizedItems = 0;
-
-    // fb loads 3 feed items up front, as these won't be caught by the observer
-    // they need to be processed independently
-    deviralize(feed);
-
-    // observe the feed for new children
-    observer.observe(feed, { childList: true });
-    observerRunning = true;
-  } else if (feed && observerRunning && deviralizerActive) {
-    // keep observer alive (it seems to die for no reason)
-    observer.observe(feed, { childList: true });
-  } else if (
-    (!feed && observerRunning && deviralizerActive) ||
-    (observerRunning && !deviralizerActive)
-  ) {
-    // don't observe when not looking at the feed or when deviralizer is not active
-    console.log('deviralizer paused');
-    observer.disconnect();
-    observerRunning = false;
-  }
-}, 2000);
+  if (feed && deviralizerActive) deviralize(feed, maxLikes);
+});

@@ -8,6 +8,12 @@
     "storage",
     "https://www.facebook.com/"
   ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
   "content_scripts": [
     {
       "matches": [
@@ -16,7 +22,9 @@
       "run_at": "document_end",
       "exclude_matches": [],
       "css": [],
-      "js": ["index.js"]
+      "js": [
+        "index.js"
+      ]
     }
   ],
   "page_action": {
