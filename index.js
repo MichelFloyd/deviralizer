@@ -28,6 +28,14 @@ const getLikes = (text) => {
 };
 
 const processFeedElement = (el, maxLikes) => {
+  /* this is the critical bit of code
+   * if we find "likes" on the feed element we add a "likes" attribute to the element with the current count of likes
+   * If the number of likes is greater than the threshold we also add a "dv" attribute whose style
+   * will be set by the global css style defined earlier 
+   * Since we are only hiding, not deleting, feed elements, this approach allows the user to change the
+   * threshold at any time and either recover previously hidden elements or hide additional ones or even
+   * to toggle the deviralizer on/off
+   * */
   if (!el.hasAttribute('likes')) {
     feedItemsFound += 1;
     const likesElement = el.querySelector(likeQuerySelector);
@@ -35,7 +43,6 @@ const processFeedElement = (el, maxLikes) => {
       const likes = getLikes(likesElement.innerText);
       if (likes > maxLikes) {
         deviralizedItems += 1;
-        //el.setAttribute('style', 'border: 1px solid red'); // debugging
         el.setAttribute('dv', '');
       }
       el.setAttribute('likes', likes);
@@ -74,7 +81,6 @@ const reprocessFeed = (feed, maxLikes) => {
 };
 
 // toggle the display of deviralized items on/off
-
 const toggle = (deviralizerActive) => {
   console.log('toggling');
   const style = head.childNodes[0];
@@ -89,8 +95,12 @@ const toggle = (deviralizerActive) => {
 chrome.runtime.onMessage.addListener(
   ({ deviralizerActive, maxLikes, toggleDeviralizer, reprocess }) => {
     const feed = document.querySelector('[role="feed"]');
+
+    // handle settings changes
     if (feed && reprocess) reprocessFeed(feed, maxLikes);
     else if (feed && toggleDeviralizer) toggle(deviralizerActive);
-    else if (feed && deviralizerActive) deviralize(feed, maxLikes);
+
+    // deviralize
+    if (feed && deviralizerActive) deviralize(feed, maxLikes);
   }
 );
