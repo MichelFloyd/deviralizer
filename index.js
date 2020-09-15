@@ -74,7 +74,6 @@ const reprocessFeedElement = (el, maxLikes) => {
 
 // handle changes to the maxLikes setting
 const reprocessFeed = (feed, maxLikes) => {
-  console.log('reprocessing');
   feedItemsFound = 0;
   deviralizedItems = 0;
   Array.from(feed.children).forEach((el) => reprocessFeedElement(el, maxLikes));
@@ -82,7 +81,6 @@ const reprocessFeed = (feed, maxLikes) => {
 
 // toggle the display of deviralized items on/off
 const toggle = (deviralizerActive) => {
-  console.log('toggling');
   const style = head.childNodes[0];
   style.innerText = deviralizerActive
     ? '[dv]{display: none;}'
