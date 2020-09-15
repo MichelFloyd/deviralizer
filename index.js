@@ -35,10 +35,8 @@ const processFeedElement = (el, maxLikes) => {
       const likes = getLikes(likesElement.innerText);
       if (likes > maxLikes) {
         deviralizedItems += 1;
-        el.setAttribute('style', 'border: 1px solid red'); // debugging
+        //el.setAttribute('style', 'border: 1px solid red'); // debugging
         el.setAttribute('dv', '');
-        //el.setAttribute('style', 'display: none');
-        //el.remove(); // turns out to perform poorly
       }
       el.setAttribute('likes', likes);
     } else el.setAttribute('likes', -1);
@@ -53,10 +51,46 @@ const processFeedElement = (el, maxLikes) => {
 
 const deviralize = (feed, maxLikes) =>
   Array.from(feed.children).forEach((el) => processFeedElement(el, maxLikes));
-  
+
+const reprocessFeedElement = (el, maxLikes) => {
+  if (el.hasAttribute('likes')) {
+    feedItemsFound += 1;
+    const likes = parseInt(el.getAttribute('likes'));
+    if (likes > maxLikes) {
+      deviralizedItems += 1;
+      el.setAttribute('dv', '');
+    } else {
+      el.removeAttribute('dv');
+    }
+  }
+};
+
+// handle changes to the maxLikes setting
+const reprocessFeed = (feed, maxLikes) => {
+  console.log('reprocessing');
+  feedItemsFound = 0;
+  deviralizedItems = 0;
+  Array.from(feed.children).forEach((el) => reprocessFeedElement(el, maxLikes));
+};
+
+// toggle the display of deviralized items on/off
+
+const toggle = (deviralizerActive) => {
+  console.log('toggling');
+  const style = head.childNodes[0];
+  style.innerText = deviralizerActive
+    ? '[dv]{display: none;}'
+    : '[dv]{display: block;}';
+  head.replaceChild(style, style);
+};
+
 // poll instead of using a mutation observer because the mutation observer seems to shut itself off
 // for no good reason
-chrome.runtime.onMessage.addListener(({ deviralizerActive, maxLikes }) => {
-  const feed = document.querySelector('[role="feed"]');
-  if (feed && deviralizerActive) deviralize(feed, maxLikes);
-});
+chrome.runtime.onMessage.addListener(
+  ({ deviralizerActive, maxLikes, toggleDeviralizer, reprocess }) => {
+    const feed = document.querySelector('[role="feed"]');
+    if (feed && reprocess) reprocessFeed(feed, maxLikes);
+    else if (feed && toggleDeviralizer) toggle(deviralizerActive);
+    else if (feed && deviralizerActive) deviralize(feed, maxLikes);
+  }
+);

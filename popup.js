@@ -12,12 +12,20 @@ window.onload = function () {
   });
 
   cb.onclick = function (ev) {
-    chrome.storage.sync.set({ deviralizer: this.checked });
-    tf.disabled = !this.checked;
+    const deviralizerActive =  this.checked;
+    chrome.storage.sync.set({ deviralizer: deviralizerActive });
+    tf.disabled = !deviralizerActive;
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { deviralizerActive, toggleDeviralizer: true });
+    });
+  
   };
 
   tf.onchange = function(ev) {
-    console.log(this.value);
-    chrome.storage.sync.set({ maxLikes: this.value });
+    const maxLikes = this.value;
+    chrome.storage.sync.set({ maxLikes });
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { maxLikes, reprocess: true });
+    });
   };
 };
